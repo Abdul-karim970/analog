@@ -3,16 +3,48 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 class AnalogClockPainter extends CustomPainter {
-  final DateTime dateTime;
+  final digitsTicks = [
+    '12',
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    '10',
+    '11',
+  ];
+  final romanTicks = [
+    'XII',
+    'I',
+    'II',
+    'III',
+    'IV',
+    'V',
+    'VI',
+    'VII',
+    'VIII',
+    'IX',
+    'X',
+    'XI',
+  ];
 
-  AnalogClockPainter({required this.dateTime});
+  final DateTime dateTime;
+  final HourTickStyle hourTickStyle;
+
+  AnalogClockPainter({required this.hourTickStyle, required this.dateTime});
   @override
   void paint(Canvas canvas, Size size) {
+    String toBePaint;
+
     final width = size.width;
     final height = size.height;
     final clockRadius = min(width, height) / 2;
     final centerOffset = Offset(width * 0.5, height * 0.5);
-    const tickDegree = 2 * pi / 60;
+    const tickAngle = 2 * pi / 60;
 
     // Tick thickness ans length
 
@@ -20,6 +52,7 @@ class AnalogClockPainter extends CustomPainter {
     final hoursTickThickness = clockRadius * 0.02;
     final minuteTickLength = clockRadius * 0.06;
     final hoursTickLength = clockRadius * 0.12;
+    final hoursTickLengthWithValues = clockRadius * 0.1;
 
     // Clock base
     final innerFilledCircleRadius = clockRadius * 0.05;
@@ -100,14 +133,37 @@ class AnalogClockPainter extends CustomPainter {
 
     for (var i = 0; i < 60; i++) {
       if (i % 5 == 0) {
+        if (hourTickStyle == HourTickStyle.tickHours) {
+          canvas.drawLine(Offset(0, -clockRadius),
+              Offset(0, -clockRadius + hoursTickLength), hoursTickPaint);
+        } else if (hourTickStyle == HourTickStyle.digitsHours ||
+            hourTickStyle == HourTickStyle.romanHours) {
+          canvas.drawLine(
+              Offset(0, -clockRadius),
+              Offset(0, -clockRadius + hoursTickLengthWithValues),
+              hoursTickPaint);
+
+          toBePaint = hourTickStyle == HourTickStyle.digitsHours
+              ? digitsTicks[i ~/ 5]
+              : romanTicks[i ~/ 5];
+
+          TextPainter textPainter = TextPainter(
+              textDirection: TextDirection.ltr,
+              text: TextSpan(text: toBePaint));
+          textPainter.layout();
+          canvas.save();
+          canvas.translate(0, -clockRadius * 0.75);
+          canvas.rotate(-tickAngle * i);
+          textPainter.paint(canvas,
+              Offset(-(textPainter.width) / 2, -(textPainter.height) / 2));
+          canvas.restore();
+        }
         canvas.drawLine(Offset(0, -clockRadius),
             Offset(0, -clockRadius * 1.135), clockOuterLinePaint);
         canvas.drawPath(clockOuterDesignPath, clockOuterDesignPaint);
         canvas.drawCircle(Offset(0, -clockRadius * 1.2725), clockRadius * 0.038,
             clockOuterDesignCirclePaint);
         canvas.drawPath(clockOuterDesignSecondPath, clockOuterDesignPaint);
-        canvas.drawLine(Offset(0, -clockRadius + hoursTickLength),
-            Offset(0, -clockRadius), hoursTickPaint);
       } else {
         canvas.drawLine(Offset(0, -clockRadius), Offset(0, -clockRadius * 1.07),
             clockOuterLinePaint);
@@ -133,7 +189,7 @@ class AnalogClockPainter extends CustomPainter {
             Offset(0, -clockRadius + clockRadius * 0.25), secondsNeedlePaint);
       }
 
-      canvas.rotate(tickDegree);
+      canvas.rotate(tickAngle);
     }
     canvas.restore();
   }
@@ -146,3 +202,5 @@ class AnalogClockPainter extends CustomPainter {
   bool shouldRebuildSemantics(AnalogClockPainter oldDelegate) =>
       oldDelegate.dateTime != dateTime;
 }
+
+enum HourTickStyle { tickHours, digitsHours, romanHours }

@@ -60,7 +60,9 @@ class _MyHomePageState extends State<MyHomePage> {
               width: width * 0.9,
               height: height * 0.8,
               child: CustomPaint(
-                painter: AnalogClockPainter(dateTime: dateTime),
+                painter: AnalogClockPainter(
+                    dateTime: dateTime,
+                    hourTickStyle: HourTickStyle.digitsHours),
               ),
             )
           ],
