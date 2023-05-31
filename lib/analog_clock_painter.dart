@@ -70,7 +70,7 @@ class AnalogClockPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
     final clockOuterDesignCirclePaint = Paint()..color = Colors.white;
 
-    // Clock hours and minute tick
+    // Clock hours and minute tick paint
     final minuteTickPaint = Paint()
       ..color = Colors.white
       ..strokeWidth = minuteTickThickness
@@ -95,6 +95,8 @@ class AnalogClockPainter extends CustomPainter {
       ..color = Colors.white
       ..strokeCap = StrokeCap.round
       ..strokeWidth = clockRadius * 0.04;
+
+    // Drawing Needles
 
     for (var i = 0; i < 60; i++) {
       if (i % 5 == 0) {
